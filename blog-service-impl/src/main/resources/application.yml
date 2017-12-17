@@ -1,0 +1,27 @@
+
+server:
+  port: 8085
+
+spring:
+  application:
+    name: blog-service-impl
+
+  profiles:
+    active: dev
+
+mybatis:
+  config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.blog.entity
+
+mapper:
+   mappers: com.blog.baseDao.IBaseDao
+   identity: MYSQL
+   not-empty: false
+
+dubbo:
+  application:
+    name: service-provider
+  registry:
+    protocol: zookeeper
+    address: 127.0.0.1:2181
