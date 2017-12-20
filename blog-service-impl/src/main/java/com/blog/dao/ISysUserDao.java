@@ -1,7 +1,7 @@
 package com.blog.dao;
 
 
-import com.blog.baseDao.IBaseDao;
+import com.blog.basedao.IBaseDao;
 import com.blog.entity.authority.SysUser;
 import org.springframework.stereotype.Repository;
 

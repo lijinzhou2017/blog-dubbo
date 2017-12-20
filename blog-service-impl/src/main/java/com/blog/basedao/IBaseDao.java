@@ -1,4 +1,4 @@
-package com.blog.baseDao;
+package com.blog.basedao;
 
 import tk.mybatis.mapper.common.ExampleMapper;
 import tk.mybatis.mapper.common.IdsMapper;
