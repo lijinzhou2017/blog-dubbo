@@ -2,6 +2,8 @@ package com.blog.controller;
 
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.blog.error.ErrorEnum;
+import com.blog.error.ViewException;
 import com.blog.service.ISysUserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +23,15 @@ public class SysUserController {
     public List<Map<String,Object>> ajaxUser2(){
         List<Map<String,Object>> userlist=sysUserService.getUserAll();
         return userlist;
+    }
+
+    @RequestMapping(value="/user3")
+    @ResponseBody
+    public List<Map<String,Object>> ajaxUser3() throws ViewException {
+        if (true){
+            throw new ViewException(ErrorEnum.EXCEPTION199);
+        }
+        return null;
     }
 
 }

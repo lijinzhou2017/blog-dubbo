@@ -15,7 +15,7 @@ mybatis:
   type-aliases-package: com.blog.entity
 
 mapper:
-   mappers: com.blog.baseDao.IBaseDao
+   mappers: com.blog.basedao.IBaseDao
    identity: MYSQL
    not-empty: false
 
