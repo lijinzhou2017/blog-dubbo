@@ -1,0 +1,178 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="/layout::layoutHead(~{this::title},~{this::link})">
+        <title>网站后台管理</title>
+        <link th:href="@{/assets/plugins/bootstrap-table/bootstrap-table.min.css}" rel="stylesheet" />
+    </head>
+
+    <body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>用户管理</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <form role="form" class="form-inline">
+                            <div class="form-group">
+                                <input type="text" id="username" placeholder="请输入账号"  class="form-control"/>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="phone" placeholder="请输入手机"  class="form-control"/>
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control" name="status" id="status">
+                                    <option value="" >选择状态</option>
+                                    <option value="0" >无效</option>
+                                    <option value="1" >有效</option>
+                                </select>
+                            </div>
+                                <button class="btn btn-success" type="button" onclick="javascript: $('#user-table').bootstrapTable('refreshOptions',{pageNumber:1});$('#user-table').bootstrapTable('refresh');"><span class="glyphicon glyphicon-search"></span></button>
+                        </form>
+                        <form role="form1" class="form-inline pull-left">
+                            <button class="btn btn-success" type="button" onclick="_happy.layer.iframe('/user/addOrEditUser/0','yes','600px','450px');"><span >新增</span></button>
+                            <button class="btn btn-warning" type="button" onclick="update();"><span >修改</span></button>
+                            <button class="btn btn-primary" type="button" id="user-list-status-enable" onclick="updateStatus(1);"><span >启用</span></button>
+                            <button class="btn btn-danger" type="button" style="display: none;" id="user-list-status-disable" onclick="updateStatus(0);"><span >禁用</span></button>
+                            <button class="btn btn-info" type="button" onclick="resetPassword();"><span >重置密码</span></button>
+                        </form>
+                        <table id="user-table" class="table-striped"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/assets/js/jquery.min.js}" ></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}" ></script>
+    <script th:src="@{/assets/plugins/bootstrap-table/bootstrap-table.min.js}" ></script>
+    <script th:src="@{/assets/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js}"></script>
+    <script th:src="@{/assets/plugins/layui/layui.all.js}" ></script>
+    <script th:src="@{/assets/js/_manage.js}" ></script>
+    <script th:inline="javascript">
+        $('#user-table').bootstrapTable({
+            height: $(window).height()-100,
+            pagination: true,
+            singleSelect: true,
+            queryParamsType: "limit",
+            pageList: [10,15,20,25],
+            search: false, //不显示 搜索框
+            contentType: "application/x-www-form-urlencoded",
+            url:"/user/ajaxUser",
+            method:"post",
+            showColumns: false, //不显示下拉框（选择显示的列）
+            queryParams:queryParams,
+            sidePagination: "server", //服务端请求
+            columns: [{
+                idfield: 'id',
+                checkbox: true
+            },{
+                field: 'username',
+                title: '用户名',
+                align: 'center',
+                valign: 'top',
+            },{
+                field: 'nickname',
+                title: '昵称',
+                align: 'center',
+                valign: 'top',
+            },{
+                field: 'phone',
+                title: '手机',
+                align: 'center',
+                valign: 'top',
+            }, {
+                field: 'status',
+                title: '状态',
+                align: 'center',
+                valign: 'top',
+                formatter:function(value,row,index){
+                    return value==1?"有效":"<span style='color: red;'>无效</span>";
+                }
+            },{
+                field: 'lastLoginTime',
+                title: '最后登录时间',
+                align: 'center',
+                valign: 'top',
+                formatter:function(value){
+                    if( value != null){
+                        return new Date(value).format("yyyy-MM-dd hh:mm");
+                    }
+                    return '-';
+                }
+            }],
+            onCheck:function (row) {
+                var status = row.status;
+                //操作按钮的效果
+                if (status === 1){
+                    $("#user-list-status-disable").show();
+                    $("#user-list-status-enable").hide();
+                }else if(status === 0){
+                    $("#user-list-status-disable").hide();
+                    $("#user-list-status-enable").show();
+                }
+            }
+        });
+        function queryParams(params){
+            return {
+                pageSize: params.limit,
+                pageNum: params.offset / params.limit + 1 ,
+                username:$("#username").val(),
+                status:$("#status").val(),
+                phone:$("#phone").val(),
+            };
+        }
+        /**重置密码*/
+        function resetPassword(){
+            var selected = $("#user-table").bootstrapTable("getSelections"); //获取选中的
+            if(selected == undefined || selected.length < 1){
+                layer.msg("请选择要修改的用户");
+            }else{
+                var node = selected[0];
+                $.ajax({
+                    url:'/user/reset/password/'+node.id,
+                    type:"POST",
+                    success:function (data) {
+                        ajaxSuccess(data);
+                    },
+                    error:function (data) {
+                        ajaxError(data);
+                    }
+                });
+            }
+
+        }
+
+        //修改
+        function update(){
+            var selected = $("#user-table").bootstrapTable("getSelections"); //获取选中的
+            if(selected == undefined || selected.length < 1){
+                layer.msg("请选择要修改的用户");
+            }else{
+                var node = selected[0];
+                _happy.layer.iframe('/user/addOrEditUser/'+node.id,'no','600px','450px');
+            }
+        }
+
+        //启用/禁用
+        function updateStatus(status) {
+            var selected = $("#user-table").bootstrapTable("getSelections"); //获取选中的
+            if(selected == undefined || selected.length < 1){
+                layer.msg("请选择要修改的用户");
+            }else{
+                var node = selected[0];
+                $.ajax({
+                    url:'/user/status/'+status+'/'+node.id,
+                    type:'post',
+                    success:function (data) {
+                        ajaxSuccess(data);
+                    },
+                    error:function (data) {
+                        ajaxError(data);
+                    }
+                });
+            }
+        }
+    </script>
+    </body>
+</html>

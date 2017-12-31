@@ -4,6 +4,7 @@ import com.blog.entity.BaseEntity;
 import lombok.Data;
 
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Date;
 
 @Data
@@ -33,7 +34,7 @@ public class SysUser extends BaseEntity {
     /**
      * 0保密 1男 2女
      */
-    private Boolean sex;
+    private Integer sex;
 
     /**
      * 生日
@@ -53,7 +54,7 @@ public class SysUser extends BaseEntity {
     /**
      * 0无效 1有效
      */
-    private Boolean status;
+    private Integer status;
 
     /**
      * 登录次数
@@ -74,4 +75,9 @@ public class SysUser extends BaseEntity {
      * 修改时间
      */
     private Date updateTime;
+
+    @Transient
+    private Integer userRoleId;  //sys_user_role id
+    @Transient
+    private Integer roleId;      //用户是否拥有该角色用到
 }

@@ -1,0 +1,184 @@
+    <html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="/layout::layoutHead(~{this::title},~{this::link})">
+        <title>网站后台管理</title>
+        <link th:href="@{/assets/plugins/amazeui/amazeui.chosen.css}" rel="stylesheet" />
+    </head>
+    <body>
+    <div class="col-md-12">
+        <form id="authority-add-or-edit-form">
+            <input type="hidden" th:value="${authority.parentId}" id="add-or-edit-authority-parent-hidden"/>
+            <input type="hidden" th:value="${authority.level}" id="add-or-edit-authority-level-hidden"/>
+            <input type="hidden" th:value="${authority.id}" name="id"/>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">权限名：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="name" th:value="${authority.name}" class="form-control" placeholder="请输入权限名" datatype="*2-10" errormsg="权限名2-10个字符" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Code：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="code" th:value="${authority.code}" class="form-control" placeholder="请输入唯一code" datatype="*1-20" errormsg="唯一code 1-20个字符"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Url：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="url" th:value="${authority.url}" class="form-control" placeholder="请输入Url" datatype="*" errormsg="url必填" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">类型：</label>
+                <div class="col-sm-9">
+                    <select  id="add-or-edit-authority-type" class="form-control" name="type">
+                        <option value="1" th:selected="${authority.type eq 1}">菜单型</option>
+                        <option value="0" th:selected="${authority.type eq 0}">按钮型</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">层级：</label>
+                <div class="col-sm-9">
+                    <select class="form-control" id="add-or-edit-authority-level" name="level" >
+                        <!--如果加的是一级菜单,不需要选择上级-->
+                        <option value="1" th:selected="${authority.level eq 1}">一级菜单</option>
+                        <!--如果加的是二级菜单,父权限展示一级菜单-->
+                        <option value="2" th:selected="${authority.level eq 2}">二级菜单</option>
+                        <!--如果加的是三级按钮,父权限展示一级,二级菜单单-->
+                        <option value="3" th:selected="${authority.level eq 3}">三级按钮</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">父权限：</label>
+                <div class="col-sm-9" id="add-or-edit-authority-parent-div">
+                    <select class="form-control" id="add-or-edit-authority-parent" name="parentId" ></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">排序：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="orders" th:value="${authority.orders}" value="0" class="form-control" placeholder="请输入排序值"  datatype="n"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">备注：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="remark" th:value="${authority.remark}" class="form-control" placeholder="请输入备注"  />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-12 pull-right">
+                    <button class="btn btn-success" type="button" id="authority-add-or-edit-form-submit">保存</button>
+                    <button class="btn btn-default" type="button" onclick="javascript:parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    </body>
+    <script th:src="@{/assets/js/jquery.min.js}" ></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}" ></script>
+    <script th:src="@{/assets/plugins/layui/layui.all.js}" ></script>
+    <script th:src="@{/assets/plugins/validForm/Validform_v5.3.2_min.js}" ></script>
+    <script th:src="@{/assets/plugins/amazeui/amazeui.chosen.min.js}" ></script>
+
+    <script th:inline="javascript">
+        $(function(){
+
+            $("#authority-add-or-edit-form").Validform({
+                btnSubmit:'#authority-add-or-edit-form-submit',
+                showAllError:false,
+                tiptype:function(msg,o){
+                    if(o.type === 2){//验证通过,不提示成功
+                        return;
+                    }
+                    if (o.type === 1){//提交
+                        layer.msg(msg);
+                        return;
+                    }
+                    layer.msg(msg,{icon:2});
+                },
+                postonce:true, //二次提交防御
+                ajaxPost:true,
+                url:"/authority/addOrEditAuthority",
+                callback:function(data){
+                    var result = data.result;
+                    if (result === 200){
+                        window.parent.location.reload();
+                        parent.layer.close(parent.layer.getFrameIndex(window.name));
+                    }else{
+                        layer.msg(data.msg,{icon:2});
+                    }
+                }
+            });
+
+            <!--层级下拉选择触发事件-->
+            $("#add-or-edit-authority-level").change(function(){
+                var authorityLoadIndex = layer.load();
+                $("#add-or-edit-authority-parent-div").empty();
+                var level = $(this).val();
+                if (level == "1"){
+                    $("#add-or-edit-authority-parent-div").html("-");
+                    layer.close(authorityLoadIndex);
+                    return;
+                }
+                var url = "/authority/ajaxAuthorityTree/1/1";
+                if(level == 2){
+                    url += "/1";
+                }
+                $.ajax({
+                    url:url,
+                    async: false,
+                    type:"GET",
+                    success:function(data){
+                        var html = "<select  id='add-or-edit-authority-parent' name='parentId' class='form-control'>";
+                        if (level == 2){
+                            for (var i = 0 ;i < data.length; i++){
+                                html += "  <option value='"+data[i].id+"'>"+data[i].name+"</option>";
+                            }
+                        }else if(level == 3){
+                            for (var i = 0 ;i < data.length; i++){
+                                var var1 = data[i];
+                                var node = var1.nodes;
+                                if (node != null && node != undefined){
+                                    html += "  <optgroup label ='"+var1.name+"'>";
+                                    for (var j =0; j < node.length; j++){
+                                        var var2 = node[j];
+                                        html += "  <option value='"+var2.id+"'>"+var2.name+"</option>";
+                                    }
+                                    html += "</optgroup>";
+                                }else{
+                                    html += "  <option value='"+var1.id+"'>"+var1.name+"</option>";
+                                }
+                            }
+                        }
+                        html += "</select>";
+                        $("#add-or-edit-authority-parent-div").html(html);
+                        <!--父权限下拉插件-->
+                        $("#add-or-edit-authority-parent").chosen({
+                            no_results_text:"未搜索到符合数据",
+                            disable_search_threshold:1
+                        });
+                    },
+                    error:function () {
+                        layer.msg("获取父权限信息出错");
+                    }
+                });
+                layer.close(authorityLoadIndex);
+            });
+
+            //修改页面 父权限回显
+            var level = $("#add-or-edit-authority-level-hidden").val();
+            if (level != null && level != undefined && level != '' ){
+                $('#add-or-edit-authority-level').trigger("change");
+                var parent = $("#add-or-edit-authority-parent-hidden").val();
+                $("option[value='"+parent+"']").prop("selected", true);
+                $("option[value='"+parent+"']").trigger("chosen:updated");
+            }
+
+        });
+    </script>
+
+</html>

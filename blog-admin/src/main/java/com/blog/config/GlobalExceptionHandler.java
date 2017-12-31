@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
         logger.error("异常:" + e.getCode());
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject("exception", e);
-        modelAndView.setViewName("/compose/error"); //返回error页面
+        modelAndView.setViewName("/error"); //返回error页面
         modelAndView.addObject("url", request.getRequestURL().toString());
         //这里还可以做一些其它操作,比如可以把异常信息存表,做记录
         return modelAndView;

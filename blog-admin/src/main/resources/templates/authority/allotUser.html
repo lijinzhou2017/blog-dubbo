@@ -1,0 +1,178 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="/layout::layoutHead(~{this::title},~{this::link})">
+        <title>网站后台管理</title>
+        <link th:href="@{/assets/plugins/bootstrap-table/bootstrap-table.min.css}" rel="stylesheet" />
+    </head>
+
+    <body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5><a href="/role" class="fa fa-reply" th:title="返回"></a> &nbsp;&nbsp;角色:<span style="color: red;" th:text="${role.name}"></span>&nbsp;&nbsp;关联用户</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <form role="form" class="form-inline">
+                            <div class="form-group">
+                                <input type="text" id="username" placeholder="请输入账号"  class="form-control"/>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="phone" placeholder="请输入手机"  class="form-control"/>
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control" name="status" id="status">
+                                    <option value="" >选择状态</option>
+                                    <option value="0" >无效</option>
+                                    <option value="1" >有效</option>
+                                </select>
+                            </div>
+                                <button class="btn btn-success" type="button" onclick="javascript: $('#role-allot-user-table').bootstrapTable('refreshOptions',{pageNumber:1});$('#role-allot-user-table').bootstrapTable('refresh');"><span class="glyphicon glyphicon-search"></span></button>
+                        </form>
+                        <form role="form1" class="form-inline pull-left">
+                            <button class="btn btn-success" type="button" id="role-allot-user"><span >关联</span></button>
+                            <button class="btn btn-warning" type="button" id="role-un-allot-user"><span >解除关联</span></button>
+                        </form>
+                        <table id="role-allot-user-table" class="table-striped"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/assets/js/jquery.min.js}" ></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}" ></script>
+    <script th:src="@{/assets/plugins/bootstrap-table/bootstrap-table.min.js}" ></script>
+    <script th:src="@{/assets/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js}"></script>
+    <script th:src="@{/assets/plugins/layui/layui.all.js}" ></script>
+    <script th:src="@{/assets/js/_manage.js}" ></script>
+    <script th:inline="javascript">
+        $(function () {
+            $('#role-allot-user-table').bootstrapTable({
+                height: $(window).height()-100,
+                pagination: true,
+                singleSelect: false,
+                queryParamsType: "limit",
+                pageList: [10,15,20,25],
+                search: false, //不显示 搜索框
+                contentType: "application/x-www-form-urlencoded",
+                url:"/role/ajaxUser/[(${role.id})]",
+                method:"post",
+                showColumns: false, //不显示下拉框（选择显示的列）
+                queryParams:queryParams,
+                sidePagination: "server", //服务端请求
+                columns: [{
+                    idfield: 'id',
+                    checkbox: true
+                },{
+                    field: 'username',
+                    title: '用户名',
+                    align: 'center',
+                    valign: 'top',
+                },{
+                    field: 'nickname',
+                    title: '昵称',
+                    align: 'center',
+                    valign: 'top',
+                },{
+                    field: 'phone',
+                    title: '手机',
+                    align: 'center',
+                    valign: 'top',
+                }, {
+                    field: 'status',
+                    title: '状态',
+                    align: 'center',
+                    valign: 'top',
+                    formatter:function(value){
+                        return value==1?"有效":"<span style='color: red;'>无效</span>";
+                    }
+                },{
+                    field: 'userRoleId',
+                    title: '是否已拥有',
+                    align: 'center',
+                    valign: 'top',
+                    formatter:function(value){
+                        if( value != null && value > 0){
+                            return '已拥有';
+                        }
+                        return '-';
+                    }
+                },{
+                    field: 'lastLoginTime',
+                    title: '最后登录时间',
+                    align: 'center',
+                    valign: 'top',
+                    formatter:function(value){
+                        if( value != null){
+                            return new Date(value).format("yyyy-MM-dd hh:mm");
+                        }
+                        return '-';
+                    }
+                }],
+            });
+            function queryParams(params){
+                return {
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1 ,
+                    username:$("#username").val(),
+                    status:$("#status").val(),
+                    phone:$("#phone").val(),
+                };
+            }
+
+
+            //关联按钮
+            $("#role-allot-user").click(function () {
+                var selected = $("#role-allot-user-table").bootstrapTable("getSelections"); //获取选中的
+                if (selected != undefined && selected.length < 1){
+                    layer.msg("请选择要关联的用户");
+                    return;
+                }
+                var userIds = new Array();
+                for (var i = 0 ; i < selected.length; i++){
+                    var node = selected[i];
+                    userIds.push(node.id);
+                }
+                $.ajax({
+                    url:"/role/allotUserRole/[(${role.id})]",
+                    type:"POST",
+                    data:{"userIds":userIds},
+                    success:function(data){
+                       ajaxSuccess(data);
+                    },
+                    error:function (data) {
+                        ajaxError(data);
+                    }
+                });
+            });
+
+            //关联按钮
+            $("#role-un-allot-user").click(function () {
+                var selected = $("#role-allot-user-table").bootstrapTable("getSelections"); //获取选中的
+                if (selected != undefined && selected.length < 1){
+                    layer.msg("请选择要解除关联的用户");
+                    return;
+                }
+                var userIds = new Array();
+                for (var i = 0 ; i < selected.length; i++){
+                    var node = selected[i];
+                    userIds.push(node.id);
+                }
+                $.ajax({
+                    url:"/role/removeUserRole/[(${role.id})]",
+                    type:"POST",
+                    data:{"userIds":userIds},
+                    success:function(data){
+                        ajaxSuccess(data);
+                    },
+                    error:function (data) {
+                        ajaxError(data);
+                    }
+                });
+            });
+
+        });
+    </script>
+    </body>
+</html>

@@ -5,7 +5,9 @@ import com.blog.entity.BaseEntity;
 import lombok.Data;
 
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 系统权限实体
@@ -40,7 +42,7 @@ public class SysAuthority extends BaseEntity {
     /**
      * 0无效 1有效
      */
-    private Boolean status;
+    private Integer status;
 
     /**
      * 图标样式
@@ -55,7 +57,7 @@ public class SysAuthority extends BaseEntity {
     /**
      * 类型 1菜单型 0按钮型
      */
-    private Boolean type;
+    private Integer type;
 
     /**
      * 路径 如: _1_2_3_
@@ -86,5 +88,12 @@ public class SysAuthority extends BaseEntity {
      * 更新时间
      */
     private Date updateTime;
+
+    @Transient
+    private List<SysAuthority> nodes; //该权限的下级集合
+    @Transient
+    private String text; //bootstrap tree view 字段名称
+    @Transient
+    private Integer userId; //查询某个用户的权限信息用到
 
 }

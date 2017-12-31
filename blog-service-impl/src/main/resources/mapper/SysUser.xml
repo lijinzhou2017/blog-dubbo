@@ -2,10 +2,24 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
-<mapper namespace="com.blog.dao.ISysUserDao">
+<mapper namespace="com.blog.dao.authority.ISysUserDao">
 
-    <select id="getUserAll" parameterType="java.util.Map" resultType="java.util.Map">
-        SELECT  * FROM  sys_user
+    <select id="selectAllIsHasRole" parameterType="com.blog.entity.authority.SysUser" resultType="com.blog.entity.authority.SysUser">
+        SELECT *,
+        (select id from sys_user_role where role_id =#{roleId} and user_id = sys_user.id) userRoleId
+        FROM sys_user
+        <trim prefix="where" prefixOverrides="and">
+            <if test="username != null">
+                AND username like concat('%',#{username},'%')
+            </if>
+            <if test="phone != null">
+                AND phone like concat('%',#{phone},'%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </trim>
+        ORDER BY update_time desc
     </select>
 
 </mapper>

@@ -1,0 +1,112 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="/layout::layoutHead(~{this::title},~{this::link})">
+        <title>后台管理</title>
+        <link th:href="@{/assets/plugins/bootstrap-treeview/bootstrap-treeview.css}" rel="stylesheet" />
+    </head>
+    <body class="gray-bg">
+        <div class="wrapper wrapper-content animated fadeInRight" style="height: 100%">
+            <div class="row">
+                <div class="col-sm-7">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5><a href="/role" class="fa fa-reply" th:title="返回"></a> &nbsp;&nbsp;角色:<span style="color: red;" th:text="${role.name}"></span>&nbsp;&nbsp;分配权限</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <form role="form" class="form-inline ">
+                                <button class="btn btn-success" type="button" id="role-allot-authority"><span >分配</span></button>
+                            </form>
+                            <div id="role-allot-authority-tree"></div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-sm-5">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>已选权限</h5>
+                        </div>
+                        <div class="ibox-content" id="authority-list-remark">
+                            <p>还未选择任何权限</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script th:src="@{/assets/js/jquery.min.js}" ></script>
+        <script th:src="@{/assets/js/bootstrap.min.js}" ></script>
+        <script th:src="@{/assets/plugins/bootstrap-treeview/bootstrap-treeview.js}" ></script>
+        <script th:src="@{/assets/plugins/layui/layui.all.js}" ></script>
+        <script th:src="@{/assets/js/_manage.js}" ></script>
+        <script th:inline="javascript">
+           $(function(){
+
+               var tree = [];
+               $.ajax({
+                   url: "/authority/ajaxAuthorityTree/1",
+                   async: false,
+                   type: "GET",
+                   success: function (data) {
+                       tree = data;
+                   }
+               });
+               var ids = new Array();
+               $("#role-allot-authority-tree").treeview({
+                   data:tree,
+                   multiSelect: false,
+                   showCheckbox:true,
+                   onNodeChecked: function(event,node) {
+                       ids.push(node.id);
+                       checkText();
+                   },
+                   onNodeUnchecked: function (event,node) {
+                       ids.remove(node.id);
+                       checkText();
+                   }
+               });
+
+               var authorityIds = '[(${authorityIds})]';
+               if(authorityIds != undefined && authorityIds != '' && authorityIds != null){
+                   var authorityArr = authorityIds.split(",");
+                   for(var i = 0;i < authorityArr.length ; i++){
+                       var authorityId = parseInt(authorityArr[i]);
+                       var nodes = $('#role-allot-authority-tree').treeview('getUnselected');
+                       for (var j =0 ; j < nodes.length; j++ ){
+                           var node = nodes[j];
+                           if(node.id ===  authorityId){
+                               $('#role-allot-authority-tree').treeview('checkNode', node );
+                           }
+                       }
+                   }
+               }
+
+               //分配按钮事件
+               $("#role-allot-authority").click(function () {
+                   $.ajax({
+                       url:"/role/allotRoleAuthority/[(${role.id})]",
+                       async:true,
+                       type:"POST",
+                       data: {"authorityIds":ids},
+                       success:function(data){
+                           ajaxSuccess(data)
+                       },
+                       error:function (data) {
+                           ajaxError(data);
+                       }
+                   });
+               });
+           });
+
+           function checkText(){
+               var nodes = $('#role-allot-authority-tree').treeview('getChecked');
+               var html = "";
+               for (var i = 0; i<nodes.length;i++){
+                   var node = nodes[i];
+                   html += "<p class='am-monospace' style='color: #0e90d2'>"+(i+1)+"."+node.text+"</p>";
+               }
+               $("#authority-list-remark").html(html);
+           }
+
+        </script>
+    </body>
+</html>

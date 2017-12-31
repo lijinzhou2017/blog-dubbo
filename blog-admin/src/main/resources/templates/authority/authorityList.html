@@ -1,0 +1,118 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="/layout::layoutHead(~{this::title},~{this::link})">
+        <title>后台管理</title>
+        <link th:href="@{/assets/plugins/bootstrap-treeview/bootstrap-treeview.css}" rel="stylesheet" />
+    </head>
+    <body class="gray-bg">
+        <div class="wrapper wrapper-content animated fadeInRight" style="height: 100%">
+            <div class="row">
+                <div class="col-sm-7">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>权限管理</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <form role="form" class="form-inline ">
+                                <input type="hidden" value="0" id="selectedNodeId"/>
+                                <button class="btn btn-success" type="button" onclick="_happy.layer.iframe('/authority/addOrEditAuthority/0','no','700px','450px');"><span >新增</span></button>
+                                <button class="btn btn-warning" type="button" onclick="update();"><span >修改</span></button>
+                                <button class="btn btn-primary" type="button" id="authority-list-status-enable" onclick="updateStatus(1);"><span >启用</span></button>
+                                <button class="btn btn-danger" type="button" style="display: none;" id="authority-list-status-disable" onclick="updateStatus(0);"><span >禁用</span></button>
+                            </form>
+                            <div id="tree"></div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-sm-5">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>详情</h5>
+                        </div>
+                        <div class="ibox-content" id="authority-list-detail">
+                            <p>This is detail!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script th:src="@{/assets/js/jquery.min.js}" ></script>
+        <script th:src="@{/assets/js/bootstrap.min.js}" ></script>
+        <script th:src="@{/assets/plugins/bootstrap-treeview/bootstrap-treeview.js}" ></script>
+        <script th:src="@{/assets/plugins/layui/layui.all.js}" ></script>
+        <script th:src="@{/assets/js/_manage.js}" ></script>
+        <script th:inline="javascript">
+            function  getData(){
+                var tree = [];
+                $.ajax({
+                    url:"/authority/ajaxAuthorityTree",
+                    async:false,
+                    type:"GET",
+                    success:function(data){
+                        tree = data;
+                    }
+                });
+                return tree;
+            }
+            $('#tree').treeview({
+                data: getData(),
+                onNodeSelected:function(event, data){
+                    var html = "";
+                    html += "<p>当前选择:<span style='color: #0e90d2'>"+data.text+"</span></p>";
+                    var status = data.status;
+                    html += "<p>状态:<span  style='color: #0e90d2'>"+(status===1?"正常":"<span style='color: red;'>禁用</span>")+"</span></p>";
+                    var type = "未知"
+                    if (data.type != null && data.type != undefined){
+                        type = data.type == 1 ? "菜单型" : "按钮型";
+                    }
+                    html += "<p>权限类型:<span  style='color: #0e90d2'>"+type+"</span></p>";
+                    var remark = "无";
+                    if (data.remark != null && data.remark != undefined && data.remark != ''){
+                        remark = data.remark;
+                    }
+                    html += "<p>描述:<span  style='color: #0e90d2'>"+remark+"</span></p>";
+                    $("#authority-list-detail").html(html);
+
+                    //操作按钮的效果
+                    if (status === 1){
+                        $("#authority-list-status-disable").show();
+                        $("#authority-list-status-enable").hide();
+                    }else if(status === 0){
+                        $("#authority-list-status-disable").hide();
+                        $("#authority-list-status-enable").show();
+                    }
+                }
+            });
+
+            function update(){
+                var nodes = $("#tree").treeview("getSelected"); //获取选中的
+                if(nodes==0 || nodes == undefined){
+                    layer.msg("请选择要修改的权限");
+                }else{
+                    var node = nodes[0];
+                    _happy.layer.iframe('/authority/addOrEditAuthority/'+node.id,'no','700px','450px');
+                }
+            }
+            function updateStatus(status) {
+                var nodes = $("#tree").treeview("getSelected"); //获取选中的
+                if(nodes==0 || nodes == undefined){
+                    layer.msg("请选择要操作的权限");
+                }else{
+                    var node = nodes[0];
+                    $.ajax({
+                        url:'/authority/status/'+status+'/'+node.id,
+                        type:'post',
+                        success:function (data) {
+                            ajaxSuccess(data);
+                        },
+                        error:function (data) {
+                            ajaxError(data);
+                        }
+                    });
+                }
+            }
+
+        </script>
+    </body>
+</html>

@@ -8,6 +8,11 @@ package com.blog;
  */
 public class Constants {
 
+    //菜单型
+    public static final Integer TYPE_MENU    = 1;
+    //按钮型
+    public static final Integer TYPE_BUTTON  = 0;
+
 
     //默认的分页数
     public static final Integer PAGE_SIZE = 10;

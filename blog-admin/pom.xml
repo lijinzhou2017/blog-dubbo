@@ -17,6 +17,11 @@
     <name>blog-admin</name>
     <description>blog-admin project for Spring Boot</description>
 
+    <properties>
+        <thymeleaf.version>3.0.6.RELEASE</thymeleaf.version>
+        <thymeleaf-layout-dialect.version>2.2.2</thymeleaf-layout-dialect.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.blog</groupId>
@@ -31,7 +36,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
-            <version>1.5.7.RELEASE</version>
         </dependency>
 
     </dependencies>

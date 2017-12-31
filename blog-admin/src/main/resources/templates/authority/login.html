@@ -1,0 +1,73 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::layoutHead(~{this::title},~{})">
+    <title>网站后台管理</title>
+</head>
+
+<body class="gray-bg">
+
+<div class="middle-box text-center loginscreen  animated fadeInDown">
+    <div>
+        <div>
+            <h1 class="logo-name">L</h1>
+        </div>
+        <h3>网站后台</h3>
+
+        <form class="m-t" role="form" id="formSubmit">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="用户名/手机" name="username" datatype="*1-20" errormsg="账号1-20个字符"/>
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control" placeholder="密码" name="password" datatype="*1-20" errormsg="密码1-20个字符"/>
+            </div>
+            <button type="button" class="btn btn-primary block full-width m-b" id="loginSubmit">登 录</button>
+        </form>
+    </div>
+</div>
+<script th:src="@{/assets/js/jquery.min.js}" ></script>
+<script th:src="@{/assets/plugins/layui/layui.all.js}" ></script>
+<script th:src="@{/assets/plugins/validForm/Validform_v5.3.2_min.js}" ></script>
+<script th:inline="javascript">
+
+    $(function(){
+        if(window.top !== window.self){ window.top.location = window.location;}//session过期跳到登录页面，要跳出iframe
+
+        //回车事件
+        document.onkeydown = function(e){
+            var ev = document.all ? window.event : e;
+            if(ev.keyCode==13) {
+                $("#formSubmit").submit();
+                return;
+            }
+        }
+
+        $("#formSubmit").Validform({
+            btnSubmit:'#loginSubmit',
+            showAllError:false,
+            tiptype:function(msg,o){
+                if(o.type === 2){//验证通过,不提示成功
+                    return;
+                }
+                if (o.type === 1){//提交
+                    layer.msg(msg);
+                    return;
+                }
+                layer.msg(msg,{icon:2});
+            },
+            postonce:true, //二次提交防御
+            ajaxPost:true,
+            url:"/login",
+            callback:function(data){
+                var result = data.result;
+                if (result === 200){
+                    window.location.href = "/"
+                }else{
+                    layer.msg(data.msg,{icon:2});
+                }
+            }
+        });
+    });
+</script>
+</body>
+
+</html>

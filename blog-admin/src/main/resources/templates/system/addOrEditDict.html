@@ -1,0 +1,86 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/layout::layoutHead(~{this::title},~{})">
+    <title>网站后台管理</title>
+</head>
+<body>
+<div class="col-md-12 ">
+    <br/>
+    <form id="dict-add-or-edit-form">
+        <input type="hidden" th:value="${sysDict.id}" name="id"/>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">数据键：</label>
+            <div class="col-sm-3">
+                <input type="text" name="name" th:value="${sysDict.code}" class="form-control" placeholder="请输入数据键"
+                       datatype="*2-15" errormsg="数据键2-15字"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">数据值：</label>
+            <div class="col-sm-3">
+                <input type="text" name="text" th:value="${sysDict.text}" class="form-control" placeholder="请输入数据值"
+                       datatype="*1-15" errormsg="数据值1-15字"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">排序：</label>
+            <div class="col-sm-3">
+                <input type="text" name="name" th:value="${sysDict.orders}" class="form-control" placeholder="请输入排序值"
+                       value="0" min="0" max="999999" errormsg="排序0-999999"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备注：</label>
+            <div class="col-sm-3">
+                <input type="text" name="remark" th:value="${sysDict.remark}" class="form-control"
+                       placeholder="请输入备注信息"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-12 pull-right">
+                <button class="btn btn-success" type="button" id="dict-add-or-edit-form-submit">保存</button>
+                <button class="btn btn-default" type="button"
+                        onclick="javascript:parent.layer.close(parent.layer.getFrameIndex(window.name));">取消
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+<script th:src="@{/assets/js/jquery.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/plugins/layui/layui.all.js}"></script>
+<script th:src="@{/assets/plugins/validForm/Validform_v5.3.2_min.js}"></script>
+
+<script th:inline="javascript">
+    $(function () {
+        $("#dict-add-or-edit-form").Validform({
+            btnSubmit: '#dict-add-or-edit-form-submit',
+            showAllError: false,
+            tiptype: function (msg, o) {
+                if (o.type === 2) {//验证通过,不提示成功
+                    return;
+                }
+                if (o.type === 1) {//提交
+                    layer.msg(msg);
+                    return;
+                }
+                layer.msg(msg, {icon: 2});
+            },
+            postonce: true, //二次提交防御
+            ajaxPost: true,
+            url: "/dict/addOrEditDict",
+            callback: function (data) {
+                var result = data.result;
+                if (result === 200) {
+                    window.parent.location.reload();
+                    parent.layer.close(parent.layer.getFrameIndex(window.name));
+                } else {
+                    layer.msg(data.msg, {icon: 2});
+                }
+            }
+        });
+    });
+</script>
+
+</html>

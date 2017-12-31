@@ -1,0 +1,104 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <head th:replace="/layout::layoutHead(~{this::title},~{this::link})">
+        <title>网站后台管理</title>
+        <link th:href="@{/assets/plugins/layui/css/layui.css}" rel="stylesheet" />
+    </head>
+    <body>
+    <div class="col-md-12 ">
+        <br/>
+        <form id="user-add-or-edit-form">
+            <input type="hidden" th:value="${user.id}" name="id"/>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">账号：</label>
+                <div class="col-sm-3">
+                    <input type="text" name="username" th:value="${user.username} ?: _" class="form-control" placeholder="请输入账号" datatype="*2-10" errormsg="账号3-10个字符" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">昵称：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="nickname" th:value="${user.nickname}" class="form-control" placeholder="请输入昵称" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">手机：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="phone" th:value="${user.phone}" class="form-control" placeholder="请输入11位电话号码" datatype="/^1[3578][0-9]{9}$/" errormsg="请输入正确的手机信息" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">座机：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="telephone" th:value="${user.telephone}" class="form-control" placeholder="请输入座机" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">生日：</label>
+                <div class="col-sm-9">
+                    <input type="text" name="birthday" th:value="${#dates.format(user.birthday,'yyyy-MM-dd')}" class="form-control" placeholder="请选择生日" id="birthday"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">性别：</label>
+                <div class="col-sm-9">
+                    <select class="form-control" name="sex" >
+                        <option value="0" th:selected="${user.sex eq 0}">保密</option>
+                        <option value="1" th:selected="${user.sex eq 1}">男</option>
+                        <option value="2" th:selected="${user.sex eq 2}">女</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-12 pull-right">
+                    <button class="btn btn-success" type="button" id="user-add-or-edit-form-submit">保存</button>
+                    <button class="btn btn-default" type="button" onclick="javascript:parent.layer.close(parent.layer.getFrameIndex(window.name));">取消</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    </body>
+    <script th:src="@{/assets/js/jquery.min.js}" ></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}" ></script>
+    <script th:src="@{/assets/plugins/layui/layui.all.js}" ></script>
+    <script th:src="@{/assets/plugins/validForm/Validform_v5.3.2_min.js}" ></script>
+
+    <script th:inline="javascript">
+        $(function(){
+            layui.use('laydate', function(){
+                var laydate = layui.laydate;
+                //执行一个laydate实例
+                laydate.render({
+                    elem: '#birthday' //指定元素
+                });
+            });
+            $("#user-add-or-edit-form").Validform({
+                btnSubmit:'#user-add-or-edit-form-submit',
+                showAllError:false,
+                tiptype:function(msg,o){
+                    if(o.type === 2){//验证通过,不提示成功
+                        return;
+                    }
+                    if (o.type === 1){//提交
+                        layer.msg(msg);
+                        return;
+                    }
+                    layer.msg(msg,{icon:2});
+                },
+                postonce:true, //二次提交防御
+                ajaxPost:true,
+                url:"/user/addOrEditUser",
+                callback:function(data){
+                    var result = data.result;
+                    if (result === 200){
+                        window.parent.location.reload();
+                        parent.layer.close(parent.layer.getFrameIndex(window.name));
+                    }else{
+                        layer.msg(data.msg,{icon:2});
+                    }
+                }
+            });
+        });
+    </script>
+
+</html>

@@ -29,7 +29,7 @@ public class SysParam extends BaseEntity {
     /**
      * 0无效 1有效
      */
-    private Boolean status;
+    private Integer status;
 
     /**
      * 备注

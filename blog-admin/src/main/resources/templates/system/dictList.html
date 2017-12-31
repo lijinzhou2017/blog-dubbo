@@ -1,0 +1,173 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/layout::layoutHead(~{this::title},~{this::link})">
+    <title>网站后台管理</title>
+    <link th:href="@{/assets/plugins/bootstrap-table/bootstrap-table.min.css}" rel="stylesheet"/>
+</head>
+
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>数据字典</h5>
+                </div>
+                <div class="ibox-content">
+                    <form role="form" class="form-inline">
+                        <div class="form-group">
+                            <input type="text" id="dict-list-search-code" placeholder="请输入数据键搜索" class="form-control"/>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="dict-list-search-text" placeholder="请输入数据值搜索" class="form-control"/>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" name="status" id="dict-list-search-status">
+                                <option value="">选择状态</option>
+                                <option value="1">正常</option>
+                                <option value="0">禁用</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-success" type="button"
+                                onclick="javascript:$('#dict-table').bootstrapTable('refreshOptions',{pageNumber:1}); $('#dict-table').bootstrapTable('refresh');">
+                            <span class="glyphicon glyphicon-search"></span></button>
+                    </form>
+                    <form role="form1" class="form-inline pull-left">
+                        <button class="btn btn-success" type="button"
+                                onclick="_happy.layer.iframe('/dict/addOrEditDict/0','yes','500px','500px');">
+                            <span>新增</span></button>
+                        <button class="btn btn-warning" type="button" onclick="update();"><span>修改</span></button>
+                        <button class="btn btn-primary" type="button" id="dict-list-status-enable"
+                                onclick="updateStatus(1);"><span>启用</span></button>
+                        <button class="btn btn-danger" type="button" style="display: none;"
+                                id="dict-list-status-disable" onclick="updateStatus(0);"><span>禁用</span></button>
+                    </form>
+                    <table id="dict-table" class="table-striped"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/assets/js/jquery.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap.min.js}"></script>
+<script th:src="@{/assets/plugins/bootstrap-table/bootstrap-table.min.js}"></script>
+<script th:src="@{/assets/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js}"></script>
+<script th:src="@{/assets/plugins/layui/layui.all.js}"></script>
+<script th:src="@{/assets/js/_manage.js}"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    $('#dict-table').bootstrapTable({
+        height: $(window).height() - 100,
+        pagination: true,
+        singleSelect: true,
+        pageSize: pageSize,
+        queryParamsType: "limit",
+        pageList: [10, 15, 20, 25],
+        search: false, //不显示 搜索框
+        contentType: "application/x-www-form-urlencoded",
+        url: "/dict/ajaxDict",
+        method: "post",
+        showColumns: false, //不显示下拉框（选择显示的列）
+        queryParams: queryParams,
+        sidePagination: "server", //服务端请求
+        columns: [{
+            idfield: 'id',
+            checkbox: true
+        }, {
+            field: 'code',
+            title: '数据键',
+            align: 'center',
+            valign: 'top',
+        }, {
+            field: 'text',
+            title: '数据值',
+            align: 'center',
+            valign: 'top',
+        }, {
+            field: 'orders',
+            title: '排序值',
+            align: 'center',
+            valign: 'top',
+        }, {
+            field: 'status',
+            title: '状态',
+            align: 'center',
+            valign: 'top',
+            formatter: function (value, row, index) {
+                return value == 1 ? "有效" : "<span style='color: red;'>无效</span>";
+            }
+        }, {
+            field: 'remark',
+            title: '备注',
+            align: 'center',
+            valign: 'top',
+        }, {
+            field: 'updateTime',
+            title: '修改时间',
+            align: 'center',
+            valign: 'top',
+            formatter: function (value) {
+                if (value != null) {
+                    return new Date(value).format("yyyy-MM-dd hh:mm");
+                }
+                return '-';
+            }
+        }],
+        onCheck: function (row) {
+            var status = row.status;
+            //操作按钮的效果
+            if (status === 1) {
+                $("#dict-list-status-disable").show();
+                $("#dict-list-status-enable").hide();
+            } else if (status === 0) {
+                $("#dict-list-status-disable").hide();
+                $("#dict-list-status-enable").show();
+            }
+        }
+    });
+    function queryParams(params) {
+        return {
+            pageSize: params.limit,
+            pageNum: params.offset / params.limit + 1,
+            code: $("#dict-list-search-code").val(),
+            text: $("#dict-list-search-text").val(),
+            status: $("#dict-list-search-status").val()
+        };
+    }
+
+    //修改
+    function update() {
+        var selected = $("#dict-table").bootstrapTable("getSelections"); //获取选中的
+        if (selected == undefined || selected.length < 1) {
+            layer.msg("请选择要修改的数字字典");
+        } else {
+            var node = selected[0];
+            _happy.layer.iframe('/dict/addOrEditDict/' + node.id, 'no', '500px', '500px');
+        }
+    }
+
+
+    //启用/禁用
+    function updateStatus(status) {
+        var selected = $("#dict-table").bootstrapTable("getSelections"); //获取选中的
+        if (selected == undefined || selected.length < 1) {
+            layer.msg("请选择要操作的数字字典");
+        } else {
+            var node = selected[0];
+            $.ajax({
+                url: '/dict/status/' + status + '/' + node.id,
+                type: 'post',
+                success: function (data) {
+                    ajaxSuccess(data);
+                },
+                error: function (data) {
+                    ajaxError(data);
+                }
+            });
+        }
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

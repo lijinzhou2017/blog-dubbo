@@ -19,27 +19,19 @@ public class CacheUtils<T> {
 
     // start  用户拥有的权限临时缓存
     private Map<Integer, Set<String>> userAuthority = new HashMap<>();
-
     public Map<Integer, Set<String>> getUserAuthority() {
         return userAuthority;
     }
-
     public void clearUserAuthority() {
         userAuthority.clear();
     }
-
     public void putUserAuthority(Integer key, Set<String> userAuthorities) {
         this.getUserAuthority().put(key, userAuthorities);
     }
-
     public Set<String> getUserAuthority(Integer key) {
         return getUserAuthority().get(key);
     }
     // end  用户拥有的权限临时缓存
-
-
-
-
 
 
 
