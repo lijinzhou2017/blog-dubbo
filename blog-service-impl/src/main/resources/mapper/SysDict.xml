@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.blog.dao.system.ISysDictDao">
+
+    <select id="selectSysDictList" parameterType="com.blog.entity.system.SysDict"
+            resultType="com.blog.entity.system.SysDict">
+        SELECT
+        id,
+        code,
+        status,
+        text,
+        remark,
+        orders,
+        create_time as createTime,
+        update_time as updateTime
+        FROM sys_dict
+        <trim prefix="where" prefixOverrides="and">
+            <if test="code != null">
+                AND code like concat('%',#{code},'%')
+            </if>
+            <if test="remark != null">
+                AND remark like concat('%',#{remark},'%')
+            </if>
+            <if test="text != null">
+                AND text like concat('%',#{text},'%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </trim>
+        ORDER BY update_time desc
+    </select>
+
+
+</mapper>

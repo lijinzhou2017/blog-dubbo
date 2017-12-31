@@ -36,8 +36,8 @@ public class SysParamServiceImpl implements ISysParamService {
     @Override
     public PageInfo<SysParam> pageInfo(SysParam sysParam) {
         PageHelper.startPage(sysParam.getPageNum(), sysParam.getPageSize());
-        List<SysParam> sysDictList = this.selectAllByEntity(sysParam);
-        PageInfo<SysParam> pageInfo = new PageInfo<>(sysDictList);
+        List<SysParam> sysParamList = sysParamDao.selectSysParamList(sysParam);
+        PageInfo<SysParam> pageInfo = new PageInfo<>(sysParamList);
         return pageInfo;
     }
 

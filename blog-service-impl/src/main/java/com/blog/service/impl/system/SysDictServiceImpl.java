@@ -36,7 +36,7 @@ public class SysDictServiceImpl implements ISysDictService {
     @Override
     public PageInfo<SysDict> pageInfo(SysDict sysDict) {
         PageHelper.startPage(sysDict.getPageNum(), sysDict.getPageSize());
-        List<SysDict> sysDictList = this.selectAllByEntity(sysDict);
+        List<SysDict> sysDictList = sysDictDao.selectSysDictList(sysDict);
         PageInfo<SysDict> pageInfo = new PageInfo<>(sysDictList);
         return pageInfo;
     }

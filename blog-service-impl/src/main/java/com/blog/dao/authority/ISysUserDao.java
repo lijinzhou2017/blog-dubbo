@@ -23,5 +23,6 @@ public interface ISysUserDao extends IBaseDao<SysUser,Integer> {
     List<SysUser> selectAllIsHasRole(SysUser sysUser);
 
     List<SysUser> selectAllByEntity(SysUser sysUser);
+    List<SysUser> selectUserList(SysUser sysUser);
 
 }

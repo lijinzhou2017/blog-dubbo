@@ -5,6 +5,8 @@ import com.blog.basedao.IBaseDao;
 import com.blog.entity.system.SysDict;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * 数据字典 Dao
  *
@@ -14,5 +16,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ISysDictDao extends IBaseDao<SysDict, Integer> {
 
+    List<SysDict> selectSysDictList(SysDict sysDict);
 
 }

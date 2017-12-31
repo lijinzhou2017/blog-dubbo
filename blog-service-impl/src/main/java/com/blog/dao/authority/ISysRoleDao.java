@@ -4,6 +4,8 @@ import com.blog.basedao.IBaseDao;
 import com.blog.entity.authority.SysRole;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 /**
  * 后台管理 角色
@@ -14,5 +16,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ISysRoleDao extends IBaseDao<SysRole, Integer> {
 
-
+    List<SysRole> selectRoleList(SysRole sysRole);
 }

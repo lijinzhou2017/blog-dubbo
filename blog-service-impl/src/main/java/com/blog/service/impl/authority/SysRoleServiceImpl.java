@@ -50,7 +50,7 @@ public class SysRoleServiceImpl  implements ISysRoleService {
 
     @Override
     public List<SysRole> selectAll(SysRole sysRole) {
-        return sysRoleDao.select(sysRole);
+        return sysRoleDao.selectRoleList(sysRole);
     }
 
     @Override

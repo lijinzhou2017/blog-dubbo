@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.blog.dao.authority.ISysRoleDao">
+
+    <select id="selectRoleList" parameterType="com.blog.entity.authority.SysRole"
+            resultType="com.blog.entity.authority.SysRole">
+        SELECT
+        id,
+        name,
+        status,
+        remark,
+        create_time as createTime,
+        update_time as updateTime
+        FROM sys_role
+        <trim prefix="where" prefixOverrides="and">
+            <if test="name != null">
+                AND name like concat('%',#{name},'%')
+            </if>
+            <if test="remark != null">
+                AND remark like concat('%',#{remark},'%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </trim>
+        ORDER BY update_time desc
+    </select>
+
+
+</mapper>

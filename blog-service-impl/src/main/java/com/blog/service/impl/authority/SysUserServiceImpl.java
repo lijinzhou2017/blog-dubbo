@@ -144,23 +144,9 @@ public class SysUserServiceImpl implements ISysUserService {
     }
 
     @Override
-    public PageInfo<SysUser> pageInfo(SysUser user) {
-
-      /*  Example example = new Example(User.class);
-        Example.Criteria criteria = example.createCriteria();
-        if (StringUtils.isNotBlank(user.getUsername())){
-            criteria.andLike("username","%"+user.getUsername()+"%");
-        }
-        if (StringUtils.isNotBlank(user.getPhone())){
-            criteria.andLike("phone","%"+user.getPhone()+"%");
-        }
-        if (user.getStatus() != null){
-            criteria.andEqualTo("status",user.getStatus());
-        }
-
-        List<User> users = this.selectByExampleMapper(example);*/
-        PageHelper.startPage(user.getPageNum(),user.getPageSize());
-        List<SysUser> users = this.selectAll(user);
+    public PageInfo<SysUser> pageInfo(SysUser sysUser) {
+        PageHelper.startPage(sysUser.getPageNum(),sysUser.getPageSize());
+        List<SysUser> users = sysUserDao.selectUserList(sysUser);
         PageInfo<SysUser> pageInfo =  new PageInfo<>(users);
         return pageInfo;
     }
